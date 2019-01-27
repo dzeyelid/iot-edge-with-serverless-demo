@@ -18,6 +18,68 @@ This project purpose is to make a demonstration that is a combination of Azure I
 | Azure Storage | Host a static web application |
 | Azure DevOps | Manage tasks and perform CI/CD |
 
+## Deployment
+
+To deploy and provision resources use Azure CLI. If you do not have it, prepare the environment.
+
+- [Overview of the Azure CLI \| Microsoft Docs](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
+
+Then make your `.env` file with copying `.env.sample`, rename it to `.env` and update for your environment.
+
+```bash
+# Load .env
+source .env
+
+# Login to your Azure account
+az login
+
+# Create a resource group
+az group create \
+    --name ${RESOURCE_GROUP} \
+    --location ${LOCATION}
+
+# Deploy resources with ARM template
+az group deployment create \
+  --resource-group ${RESOURCE_GROUP} \
+  --template-file src/arm-template/template.json \
+  --parameters @src/arm-template/parameters.json
+
+# Provision Storage Accounts to enable static website hosting
+az extension add --name storage-preview
+STORAGE_NAME=$(az storage account list \
+    --resource-group ${RESOURCE_GROUP} \
+    --query "[0].name" \
+    --output tsv)
+
+az storage blob service-properties update \
+    --account-name ${STORAGE_NAME} \
+    --static-website \
+    --index-document index.html
+
+# Provision each resources
+
+# Hold project root path
+PROJECT_ROOT=$(pwd)
+
+# Deploy static web application
+cd src/static-web-app
+yarn build
+az storage blob upload-batch \
+    --source dist \
+    --destination \$web \
+    --account-name ${STORAGE_NAME}
+
+# Show the url of static web application
+az storage account show \
+    --name ${STORAGE_NAME} \
+    --resource-group ${RESOURCE_GROUP} \
+    --query "primaryEndpoints.web" \
+    --output tsv
+
+# Return to project root directory
+cd ${PROJECT_ROOT}
+```
+
 ## References
 
 ### About copyrights

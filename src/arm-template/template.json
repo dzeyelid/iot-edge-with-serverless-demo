@@ -1,0 +1,43 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "0.1.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "If you would like to specify the location of resources that is different from resource group, specify here. Or leave blank then the deployment use the resource group's location."
+            }
+        },
+        "storageAccountsSkuName": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_ZRS",
+                "Standard_RAGRS",
+                "Standard_GRS",
+                "Premium_LRS",
+                "Premium_ZRS"
+            ]
+        }
+    },
+    "variables": {
+        "location": "[if(equals(parameters('location'), ''), resourceGroup().location, parameters('location'))]",
+        "storageAccountsName": "[uniqueString(resourceGroup().id)]"
+    },
+    "resources": [
+        {
+            "name": "[variables('storageAccountsName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2018-07-01",
+            "sku": {
+                "name": "[parameters('storageAccountsSkuName')]"
+            },
+            "kind": "StorageV2",
+            "location": "[variables('location')]",
+            "properties": {}
+        }
+    ],
+    "outputs": {}
+}
