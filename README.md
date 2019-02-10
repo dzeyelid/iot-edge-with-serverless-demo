@@ -18,9 +18,11 @@ This project purpose is to make a demonstration that is a combination of Azure I
 | Azure Storage | Host a static web application |
 | Azure DevOps | Manage tasks and perform CI/CD |
 
-## Deployment
+## Preparation
 
-To deploy and provision resources use Azure CLI. If you do not have it, prepare the environment.
+To deploy resources and provision them in this project, use Azure CLI usually.
+
+If you do not have it, prepare the environment.
 
 - [Overview of the Azure CLI \| Microsoft Docs](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest)
 
@@ -32,7 +34,25 @@ source .env
 
 # Login to your Azure account
 az login
+```
 
+## Deployment
+
+You can deploy with using _Deploy to Azure button_ or using Azure CLI.
+
+### Deploy with "Deploy to Azure button" easily
+
+Click the button below, fill fields and deploy. :)
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://deploy.azure.com/?repository=https://github.com/dzeyelid/iot-edge-with-serverless-demo?ptmpl=parameters.azuredeploy.json)
+
+_Attention_: With this way, you cannot use `.env`’s parameters. So fill them into the form manually.
+
+### Deploy with Azure CLI
+
+Deploy resources with using Azure CLI.
+
+```bash
 # Create a resource group
 az group create \
     --name ${RESOURCE_GROUP} \
@@ -44,7 +64,11 @@ az group deployment create \
   --template-file azuredeploy.json \
   --parameters @parameters.azuredeploy.json \
   --parameters prefix=${PREFIX}
+```
 
+## Provisioning
+
+```bash
 # Provision Storage Accounts to enable static website hosting
 az extension add --name storage-preview
 STORAGE_NAME=$(az storage account list \
@@ -80,10 +104,6 @@ az storage account show \
 # Return to project root directory
 cd ${PROJECT_ROOT}
 ```
-
-### Test "Deploy to Azure button"
-
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://deploy.azure.com/?repository=https://github.com/dzeyelid/iot-edge-with-serverless-demo?ptmpl=parameters.json)
 
 ## References
 
