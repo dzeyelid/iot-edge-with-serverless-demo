@@ -41,8 +41,9 @@ az group create \
 # Deploy resources with ARM template
 az group deployment create \
   --resource-group ${RESOURCE_GROUP} \
-  --template-file src/arm-template/template.json \
-  --parameters @src/arm-template/parameters.json
+  --template-file azuredeploy.json \
+  --parameters @parameters.azuredeploy.json \
+  --parameters prefix=${PREFIX}
 
 # Provision Storage Accounts to enable static website hosting
 az extension add --name storage-preview
@@ -79,6 +80,10 @@ az storage account show \
 # Return to project root directory
 cd ${PROJECT_ROOT}
 ```
+
+### Test "Deploy to Azure button"
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://deploy.azure.com/?repository=https://github.com/dzeyelid/iot-edge-with-serverless-demo?ptmpl=parameters.json)
 
 ## References
 
