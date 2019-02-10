@@ -4,6 +4,9 @@
     "parameters": {
         "storageAccountsSkuName": {
             "value": "Standard_LRS"
+        },
+        "signalRServiceSkuName": {
+            "value": "Free_F1"
         }
     }
 }
