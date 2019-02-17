@@ -68,6 +68,13 @@ az group deployment create \
 
 ## Provisioning
 
+First, you have to set the service mode of Azure SignalR Service like below.
+
+1. Open the Azure SignalR Service blade on Azure Portal
+1. Go to _Settings_ blade and switch the _Service Mode (PREVIEW)_ on _Feature Flags_ to `Serverless`.
+
+Then, do below.
+
 ```bash
 # Provision Storage Accounts to enable static website hosting
 az extension add --name storage-preview
