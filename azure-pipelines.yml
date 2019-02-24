@@ -17,6 +17,6 @@ steps:
 
 - script: |
     cd src/static-web-app
-    npm install
-    npm run build
+    yarn install
+    yarn build
   displayName: 'npm install and build'
