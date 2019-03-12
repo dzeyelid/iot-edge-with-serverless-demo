@@ -10,10 +10,5 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(Build.BinariesDirectory)/src/functions'
-    includeRootFolder: false
-    archiveType: 'zip'
-    replaceExistingArchive: true
-    archiveFile: '$(Build.ArtifactStagingDirectory)/functions-$(Build.BuildId).zip'
+- script: echo "Run as a trigger"
+  displayName: 'Run as a trigger'
