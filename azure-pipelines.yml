@@ -13,6 +13,11 @@ steps:
 - script: echo "Run as a trigger"
   displayName: 'Run as a trigger'
 
+- script: |
+    pwd
+    ls -la
+    ls -la $(Build.Repository.LocalPath)
+
 - task: PublishPipelineArtifact@0
   inputs:
     artifactName: 'functions'
