@@ -16,4 +16,4 @@ steps:
 - task: PublishPipelineArtifact@0
   inputs:
     artifactName: 'functions'
-    targetPath: 'src/funtions'
+    targetPath: '$(Build.Repository.LocalPath)/src/funtions'
