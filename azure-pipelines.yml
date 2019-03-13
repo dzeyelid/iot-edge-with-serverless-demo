@@ -15,12 +15,20 @@ steps:
   inputs:
     SourceFolder: 'src/functions'
     contents: |
-      ./**/*
-      hosts.json
+      */*
+      host.json
       extensions.csproj
     targetFolder: $(Build.ArtifactStagingDirectory)/release/functions
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: $(Build.ArtifactStagingDirectory)/release/functions
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: $(Build.ArtifactStagingDirectory)/release/functions-$(Build.BuildId).zip
+    replaceExistingArchive: true
 
 - task: PublishPipelineArtifact@0
   inputs:
     artifactName: 'functions'
-    targetPath: $(Build.ArtifactStagingDirectory)/release/functions
+    targetPath: $(Build.ArtifactStagingDirectory)/release/functions-$(Build.BuildId).zip
