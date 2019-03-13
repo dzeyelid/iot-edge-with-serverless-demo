@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'src/functions'
+    contents: |
+      */*
+      host.json
+      extensions.csproj
+    targetFolder: $(Build.ArtifactStagingDirectory)/release/functions
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: $(Build.ArtifactStagingDirectory)/release/functions
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: $(Build.ArtifactStagingDirectory)/release/functions-$(Build.BuildId).zip
+    replaceExistingArchive: true
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'functions'
+    targetPath: $(Build.ArtifactStagingDirectory)/release/functions-$(Build.BuildId).zip
