@@ -12,3 +12,8 @@ pool:
 steps:
 - script: echo "Run as a trigger"
   displayName: 'Run as a trigger'
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'functions'
+    targetPath: 'src/funtions'
