@@ -34,12 +34,37 @@
                 "Free_F1",
                 "Standard_S1"
             ]
+        },
+        "appServicePlanSkuName": {
+            "type": "string",
+            "defaultValue": "F1",
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1V2",
+                "P2V2",
+                "P3V2",
+                "P1",
+                "P2",
+                "P3"
+            ]
+        },
+        "functionsZipUrl": {
+            "type": "string"
         }
     },
     "variables": {
         "location": "[if(equals(parameters('location'), ''), resourceGroup().location, parameters('location'))]",
         "storageAccountsName": "[uniqueString(resourceGroup().id)]",
-        "signalRServiceName": "[concat(parameters('prefix'), '-signalr')]"
+        "signalRServiceName": "[concat(parameters('prefix'), '-signalr')]",
+        "appServicePlanName": "[concat(parameters('prefix'), '-plan')]",
+        "functionName": "[concat(parameters('prefix'), '-func')]"
     },
     "resources": [
         {
@@ -64,6 +89,59 @@
             "kind": "StorageV2",
             "location": "[variables('location')]",
             "properties": {}
+        },
+        {
+            "name": "[variables('appServicePlanName')]",
+            "type": "Microsoft.Web/serverFarms",
+            "apiVersion": "2018-02-01",
+            "location": "[variables('location')]",
+            "sku": {
+                "name": "[parameters('appServicePlanSkuName')]"
+            },
+            "properties": {}
+        },
+        {
+            "name": "[variables('functionName')]",
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-02-01",
+            "kind": "functionapp",
+            "location": "[variables('location')]",
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountsName'), ';AccountKey=', listKeys(variables('storageAccountsName'),'2018-07-01').keys[0].value)]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "WEBSITE_RUN_FROM_PACKAGE",
+                            "value": "[parameters('functionsZipUrl')]"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "10.14.1"
+                        },
+                        {
+                            "name": "AzureSignalRConnectionString",
+                            "value": "[listKeys(variables('signalRServiceName'),'2018-10-01').primaryConnectionString]"
+                        }    
+                    ],
+                    "cors": {
+                        "allowedOrigins": [
+                            "*"
+                        ]
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountsName'))]",
+                "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]"
+            ]
         }
     ],
     "outputs": {}
