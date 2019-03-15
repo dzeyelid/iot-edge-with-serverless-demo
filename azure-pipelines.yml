@@ -11,11 +11,19 @@ pool:
 
 steps:
 
+# run `dotnet build extensions.csproj -o bin --no-incremental`
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: 'extensions.csproj'
+    arguments: '-o bin --no-incremental'
+
 - task: CopyFiles@2
   inputs:
     SourceFolder: 'src/functions'
     contents: |
-      */*
+      */**
+      bin/**
       host.json
       extensions.csproj
     targetFolder: $(Build.ArtifactStagingDirectory)/release/functions
