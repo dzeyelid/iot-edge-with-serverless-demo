@@ -1,5 +1,7 @@
 # [WIP] IoT Edge with serverless application demonstration
 
+[![Build Status](https://dev.azure.com/nico-playground/iot-edge-with-serverless-demo/_apis/build/status/dzeyelid.iot-edge-with-serverless-demo?branchName=master)](https://dev.azure.com/nico-playground/iot-edge-with-serverless-demo/_build/latest?definitionId=3&branchName=master)
+
 ## Purpose
 
 This project purpose is to make a demonstration that is a combination of Azure IoT Edge and serverless architecture like Azure Functions, Azure SignalR Service and static website hosting feature in Azure Storage.
@@ -58,12 +60,16 @@ az group create \
     --name ${RESOURCE_GROUP} \
     --location ${LOCATION}
 
+# Get latest release (requires jq command)
+FUNCTIONS_ZIP_URL=$(curl https://api.github.com/repos/dzeyelid/iot-edge-with-serverless-demo/releases/latest | jq -r '.assets[0].browser_download_url')
+
 # Deploy resources with ARM template
 az group deployment create \
   --resource-group ${RESOURCE_GROUP} \
   --template-file azuredeploy.json \
   --parameters @parameters.azuredeploy.json \
-  --parameters prefix=${PREFIX}
+  --parameters prefix=${PREFIX} \
+  --parameters functionsZipUrl=${FUNCTIONS_ZIP_URL}
 ```
 
 ## Provisioning
