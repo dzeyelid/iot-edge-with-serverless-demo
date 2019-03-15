@@ -16,7 +16,7 @@ steps:
   inputs:
     command: build
     projects: src/functions/extensions.csproj
-    arguments: -o src/functions/bin --no-incremental
+    arguments: -o bin --no-incremental
 
 - task: CopyFiles@2
   inputs:
@@ -26,6 +26,7 @@ steps:
       bin/**
       host.json
       extensions.csproj
+      !obj/**
     targetFolder: $(Build.ArtifactStagingDirectory)/release/functions
 
 - task: ArchiveFiles@2
