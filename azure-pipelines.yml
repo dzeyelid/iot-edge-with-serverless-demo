@@ -15,8 +15,8 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: build
-    projects: $(Build.SourcesDirectory)/extensions.csproj
-    arguments: -o $(Build.SourcesDirectory)/bin --no-incremental
+    projects: src/functions/extensions.csproj
+    arguments: -o src/functions/bin --no-incremental
 
 - task: CopyFiles@2
   inputs:
