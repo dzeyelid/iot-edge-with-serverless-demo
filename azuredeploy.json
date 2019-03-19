@@ -57,16 +57,46 @@
         },
         "functionsZipUrl": {
             "type": "string"
+        },
+        "iotHubSkuName": {
+            "type": "string",
+            "defaultValue": "F1",
+            "allowedValues": [
+                "F1",
+                "S1",
+                "S2",
+                "S3",
+                "B1",
+                "B2",
+                "B3"
+            ]
+        },
+        "iotHubSkuCapacity": {
+            "type": "int",
+            "defaultValue": 1
         }
     },
     "variables": {
         "location": "[if(equals(parameters('location'), ''), resourceGroup().location, parameters('location'))]",
+        "iotHubName": "[concat(parameters('prefix'), '-iothub')]",
         "storageAccountsName": "[uniqueString(resourceGroup().id)]",
         "signalRServiceName": "[concat(parameters('prefix'), '-signalr')]",
         "appServicePlanName": "[concat(parameters('prefix'), '-plan')]",
         "functionName": "[concat(parameters('prefix'), '-func')]"
     },
     "resources": [
+        {
+            "name": "[variables('iotHubName')]",
+            "type": "Microsoft.Devices/IoTHubs",
+            "apiVersion": "2018-04-01",
+            "location": "[variables('location')]",
+            "properties": {
+            },
+            "sku": {
+                "name": "[parameters('iotHubSkuName')]",
+                "capacity": "[parameters('iotHubSkuCapacity')]"
+            }
+        },
         {
             "name": "[variables('signalRServiceName')]",
             "type": "Microsoft.SignalRService/SignalR",
@@ -140,7 +170,8 @@
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountsName'))]",
-                "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]"
+                "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]",
+                "[resourceId('Microsoft.Devices/IoTHubs', variables('iotHubName'))]"
             ]
         }
     ],
