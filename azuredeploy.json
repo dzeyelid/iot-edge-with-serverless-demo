@@ -58,6 +58,10 @@
         "functionsZipUrl": {
             "type": "string"
         },
+        "iotHubName": {
+            "type": "string",
+            "defaultValue": ""
+        },
         "iotHubSkuName": {
             "type": "string",
             "defaultValue": "F1",
@@ -78,7 +82,7 @@
     },
     "variables": {
         "location": "[if(equals(parameters('location'), ''), resourceGroup().location, parameters('location'))]",
-        "iotHubName": "[concat(parameters('prefix'), '-iothub')]",
+        "iotHubName": "[if(equals(parameters('iotHubName'), ''), 'iothub', parameters('iotHubName'))]",
         "storageAccountsName": "[uniqueString(resourceGroup().id)]",
         "signalRServiceName": "[concat(parameters('prefix'), '-signalr')]",
         "appServicePlanName": "[concat(parameters('prefix'), '-plan')]",
@@ -158,8 +162,12 @@
                         },
                         {
                             "name": "AzureSignalRConnectionString",
-                            "value": "[listKeys(variables('signalRServiceName'),'2018-10-01').primaryConnectionString]"
-                        }    
+                            "value": "[listKeys(variables('signalRServiceName'), providers('Microsoft.SignalRService', 'SignalR').apiVersions[0]).primaryConnectionString]"
+                        },
+                        {
+                            "name": "AzureIoTHubConnectionStringForService",
+                            "value": "[concat('Endpoint=', reference(resourceId('Microsoft.Devices/IoTHubs', parameters('iotHubName')), providers('Microsoft.Devices', 'IoTHubs').apiVersions[0]).eventHubEndpoints.events.endpoint, ';SharedAccessKeyName=iothubowner;SharedAccessKey=', listKeys(variables('iotHubName'), providers('Microsoft.Devices', 'IoTHubs').apiVersions[0]).value[0].primaryKey, ';EntityPath=', reference(resourceId('Microsoft.Devices/IoTHubs', parameters('iotHubName')), providers('Microsoft.Devices', 'IoTHubs').apiVersions[0]).eventHubEndpoints.events.path)]"
+                        }
                     ],
                     "cors": {
                         "allowedOrigins": [
