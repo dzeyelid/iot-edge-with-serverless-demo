@@ -78,17 +78,40 @@
         "iotHubSkuCapacity": {
             "type": "int",
             "defaultValue": 1
+        },
+        "acrSku": {
+            "type": "string",
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Classic",
+                "Basic",
+                "Standard",
+                "Premium"
+            ]
         }
     },
     "variables": {
         "location": "[if(equals(parameters('location'), ''), resourceGroup().location, parameters('location'))]",
         "iotHubName": "[if(equals(parameters('iotHubName'), ''), 'iothub', parameters('iotHubName'))]",
+        "acrName": "[concat(parameters('prefix'), 'acr')]",
         "storageAccountsName": "[uniqueString(resourceGroup().id)]",
         "signalRServiceName": "[concat(parameters('prefix'), '-signalr')]",
         "appServicePlanName": "[concat(parameters('prefix'), '-plan')]",
         "functionName": "[concat(parameters('prefix'), '-func')]"
     },
     "resources": [
+        {
+            "name": "[variables('acrName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2017-10-01",
+            "location": "[variables('location')]",
+            "sku": {
+                "name": "[parameters('acrSku')]"
+            },
+            "properties": {
+                "adminUserEnabled": true
+            }
+        },
         {
             "name": "[variables('iotHubName')]",
             "type": "Microsoft.Devices/IoTHubs",
