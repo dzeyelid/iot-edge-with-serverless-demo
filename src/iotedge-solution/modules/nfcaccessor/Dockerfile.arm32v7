@@ -3,17 +3,25 @@ FROM resin/raspberrypi3-debian:stretch
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libboost-python1.62.0 python3-pip libpython3-dev && \
+    apt-get install -y --no-install-recommends \
+        python \
+        libboost-python1.62.0 \
+        python-pip \
+        libpython-dev \
+    && \
     rm -rf /var/lib/apt/lists/* 
 
-RUN pip3 install --upgrade pip 
+RUN pip install --upgrade pip 
 RUN pip install --upgrade setuptools
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
+#COPY ./docker-resources/nfcdev.rules /etc/udev/rules.d/
+
 COPY . .
 
-RUN useradd -ms /bin/bash moduleuser
-USER moduleuser
+RUN useradd -ms /bin/bash moduleuser && \
+    adduser moduleuser plugdev
+#USER moduleuser
 
-ENTRYPOINT [ "python3", "-u", "./main.py" ]
+ENTRYPOINT [ "python", "-u", "./main.py" ]

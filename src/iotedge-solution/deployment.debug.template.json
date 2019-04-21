@@ -10,7 +10,7 @@
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
             "registryCredentials": {
-              "$PROJECT_NAME": {
+              "$CONTAINER_REGISTRY_USERNAME": {
                 "username": "$CONTAINER_REGISTRY_USERNAME",
                 "password": "$CONTAINER_REGISTRY_PASSWORD",
                 "address": "$CONTAINER_REGISTRY_ADDRESS"
@@ -57,16 +57,6 @@
           }
         },
         "modules": {
-          "tempSensor": {
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0",
-              "createOptions": {}
-            }
-          },
           "nfcaccessor": {
             "version": "1.0",
             "type": "docker",
@@ -97,8 +87,7 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "nfcaccessorToIoTHub": "FROM /messages/modules/nfcaccessor/outputs/* INTO $upstream",
-          "sensorTonfcaccessor": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/nfcaccessor/inputs/input1\")"
+          "nfcaccessorToIoTHub": "FROM /messages/modules/nfcaccessor/outputs/* INTO $upstream"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200

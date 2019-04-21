@@ -1,1 +1,2 @@
 azure-iothub-device-client~=1.4.3
+nfcpy~=0.13.1

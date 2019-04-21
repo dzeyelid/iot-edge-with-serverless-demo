@@ -2,12 +2,14 @@
 # Licensed under the MIT license. See LICENSE file in the project root for
 # full license information.
 
-import random
+# import random
 import time
 import sys
 import iothub_client
+import nfc
+import json
 # pylint: disable=E0611
-from iothub_client import IoTHubModuleClient, IoTHubClientError, IoTHubTransportProvider
+from iothub_client import IoTHubModuleClient, IoTHubClientError, IoTHubTransportProvider, DeviceMethodReturnValue
 from iothub_client import IoTHubMessage, IoTHubMessageDispositionResult, IoTHubError
 
 # messageTimeout - the maximum time in milliseconds until a message times out.
@@ -16,8 +18,8 @@ from iothub_client import IoTHubMessage, IoTHubMessageDispositionResult, IoTHubE
 MESSAGE_TIMEOUT = 10000
 
 # global counters
-RECEIVE_CALLBACKS = 0
-SEND_CALLBACKS = 0
+# RECEIVE_CALLBACKS = 0
+# SEND_CALLBACKS = 0
 
 # Choose HTTP, AMQP or MQTT as transport protocol.  Currently only MQTT is supported.
 PROTOCOL = IoTHubTransportProvider.MQTT
@@ -29,25 +31,64 @@ def send_confirmation_callback(message, result, user_context):
     map_properties = message.properties()
     key_value_pair = map_properties.get_internals()
     print ( "    Properties: %s" % key_value_pair )
-    SEND_CALLBACKS += 1
-    print ( "    Total calls confirmed: %d" % SEND_CALLBACKS )
+    # SEND_CALLBACKS += 1
+    # print ( "    Total calls confirmed: %d" % SEND_CALLBACKS )
 
 
-# receive_message_callback is invoked when an incoming message arrives on the specified 
-# input queue (in the case of this sample, "input1").  Because this is a filter module, 
-# we will forward this message onto the "output1" queue.
-def receive_message_callback(message, hubManager):
-    global RECEIVE_CALLBACKS
-    message_buffer = message.get_bytearray()
-    size = len(message_buffer)
-    print ( "    Data: <<<%s>>> & Size=%d" % (message_buffer[:size].decode('utf-8'), size) )
-    map_properties = message.properties()
-    key_value_pair = map_properties.get_internals()
-    print ( "    Properties: %s" % key_value_pair )
-    RECEIVE_CALLBACKS += 1
-    print ( "    Total calls received: %d" % RECEIVE_CALLBACKS )
-    hubManager.forward_event_to_output("output1", message, 0)
-    return IoTHubMessageDispositionResult.ACCEPTED
+# # receive_message_callback is invoked when an incoming message arrives on the specified 
+# # input queue (in the case of this sample, "input1").  Because this is a filter module, 
+# # we will forward this message onto the "output1" queue.
+# def receive_message_callback(message, hubManager):
+#     global RECEIVE_CALLBACKS
+#     message_buffer = message.get_bytearray()
+#     size = len(message_buffer)
+#     print ( "    Data: <<<%s>>> & Size=%d" % (message_buffer[:size].decode('utf-8'), size) )
+#     map_properties = message.properties()
+#     key_value_pair = map_properties.get_internals()
+#     print ( "    Properties: %s" % key_value_pair )
+#     RECEIVE_CALLBACKS += 1
+#     print ( "    Total calls received: %d" % RECEIVE_CALLBACKS )
+#     hubManager.forward_event_to_output("output1", message, 0)
+#     return IoTHubMessageDispositionResult.ACCEPTED
+
+def send_reported_state_callback(status_code, hubManager):
+    print ( "" )
+    print ( "Confirmation for reported state called with:" )
+    print ( "    status_code: %d" % status_code )
+
+
+def module_twin_callback(update_state, payload, hubManager):
+    print ( "" )
+    print ( "Twin callback called with:" )
+    print ( "    updateStatus: %s" % update_state )
+    print ( "    payload: %s" % payload )
+
+
+def module_method_callback(method_name, payload, hubManager):
+    print('received method call:')
+    print('\tmethod name:', method_name)
+    print('\tpayload:', str(payload))
+    retval = DeviceMethodReturnValue()
+    retval.status = 200
+    retval.response = "{\"key\":\"value\"}"
+    return retval
+
+
+def run_nfc_once(hubManager):
+    try:
+        clf = nfc.ContactlessFrontend('usb')
+        rdwr_options = {
+            'on-startup': hubManager.on_rdwr_startup,
+            'on-connect': hubManager.on_rdwr_connect}
+
+        tag = clf.connect(rdwr=rdwr_options)
+
+        reported_state = {'nfc': {'is_connected': False}}
+        hubManager.send_reported_state(reported_state)
+
+        return True
+    finally:
+        clf.close()
 
 
 class HubManager(object):
@@ -62,14 +103,49 @@ class HubManager(object):
         # set the time until a message times out
         self.client.set_option("messageTimeout", MESSAGE_TIMEOUT)
         
-        # sets the callback when a message arrives on "input1" queue.  Messages sent to 
-        # other inputs or to the default will be silently discarded.
-        self.client.set_message_callback("input1", receive_message_callback, self)
+        # # sets the callback when a message arrives on "input1" queue.  Messages sent to 
+        # # other inputs or to the default will be silently discarded.
+        # self.client.set_message_callback("input1", receive_message_callback, self)
+
+        self.client.set_module_method_callback(module_method_callback, self)
+        self.client.set_module_twin_callback(module_twin_callback, self)
+
+    def run(self):
+        while run_nfc_once(self):
+            print ( "** RESTERT **" )
 
     # Forwards the message received onto the next stage in the process.
     def forward_event_to_output(self, outputQueueName, event, send_context):
         self.client.send_event_async(
             outputQueueName, event, send_confirmation_callback, send_context)
+
+    # Callback received when the message that we're forwarding is processed.
+    def send_confirmation_callback(self, message, result, user_context):
+        global SEND_CALLBACKS
+        print ( "Confirmation[%d] received for message with result = %s" % (user_context, result) )
+        map_properties = message.properties()
+        key_value_pair = map_properties.get_internals()
+        print ( "    Properties: %s" % key_value_pair )
+
+    def send_reported_state(self, reported_state):
+        reported_state = json.dumps(reported_state)
+        self.client.send_reported_state(
+             reported_state, len(reported_state),
+             send_reported_state_callback, self)
+
+    def on_rdwr_startup(self, targets):
+        return targets
+
+    def on_rdwr_connect(self, tag):
+        print ( tag )
+        reported_state = {'nfc': {
+            'is_connected': True,
+            'tag': {
+                'product': tag.product,
+                'id': tag.identifier.encode("hex").upper()}}}
+        self.send_reported_state(reported_state)
+        return tag
+
 
 def main(protocol):
     try:
@@ -77,8 +153,9 @@ def main(protocol):
         print ( "IoT Hub Client for Python" )
 
         hub_manager = HubManager(protocol)
+        hub_manager.run()
 
-        print ( "Starting the IoT Hub Python sample using protocol %s..." % hub_manager.client_protocol )
+        print ( "Starting the IoT Hub Python sample using protocol %s..." %hub_manager.client_protocol )
         print ( "The sample is now waiting for messages and will indefinitely.  Press Ctrl-C to exit. ")
 
         while True:
