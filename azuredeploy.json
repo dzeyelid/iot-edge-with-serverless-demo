@@ -118,6 +118,19 @@
             "apiVersion": "2018-04-01",
             "location": "[variables('location')]",
             "properties": {
+                "routing": {
+                    "routes": [
+                        {
+                            "name": "device-twin-change-event",
+                            "source": "TwinChangeEvents",
+                            "condition": "true",
+                            "endpointNames": [
+                                "events"
+                            ],
+                            "isEnabled": true
+                        }
+                    ]
+                }
             },
             "sku": {
                 "name": "[parameters('iotHubSkuName')]",
