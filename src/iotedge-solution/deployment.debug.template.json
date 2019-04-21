@@ -79,6 +79,29 @@
                 }
               }
             }
+          },
+          "nfcStateManager": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.nfcStateManager.debug}",
+              "createOptions": {
+                "ExposedPorts": {
+                  "9229/tcp": {}
+                },
+                "HostConfig": {
+                  "PortBindings": {
+                    "9229/tcp": [
+                      {
+                        "HostPort": "9229"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -87,7 +110,8 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "nfcaccessorToIoTHub": "FROM /messages/modules/nfcaccessor/outputs/* INTO $upstream"
+          "nfcAccessorToStateManager": "FROM /messages/modules/nfcaccessor/outputs/* INTO BrokeredEndpoint(\"/modules/nfcStateManager/inputs/nfcaccessor\")",
+          "nfcStateManagerToIoTHub": "FROM /messages/modules/nfcStateManager/outputs/* INTO $upstream"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
