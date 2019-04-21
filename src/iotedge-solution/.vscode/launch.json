@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ncfaccessor Remote Debug (Python)",
+      "name": "nfcaccessor Remote Debug (Python)",
       "type": "python",
       "request": "attach",
       "port": 5678,
@@ -11,14 +11,14 @@
       "redirectOutput": true,
       "pathMappings": [
         {
-          "localRoot": "${workspaceFolder}/modules/ncfaccessor",
+          "localRoot": "${workspaceFolder}/modules/nfcaccessor",
           "remoteRoot": "/app"
         }
       ],
       "windows": {
         "pathMappings": [
           {
-            "localRoot": "${workspaceFolder}\\modules\\ncfaccessor",
+            "localRoot": "${workspaceFolder}\\modules\\nfcaccessor",
             "remoteRoot": "/app"
           }
         ]

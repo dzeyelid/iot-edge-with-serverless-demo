@@ -67,13 +67,13 @@
               "createOptions": {}
             }
           },
-          "ncfaccessor": {
-            "version": "1.0",
+          "nfcaccessor": {
+            "version": "0.1",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${MODULES.ncfaccessor}",
+              "image": "${MODULES.nfcaccessor}",
               "createOptions": {}
             }
           }
@@ -84,8 +84,8 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "ncfaccessorToIoTHub": "FROM /messages/modules/ncfaccessor/outputs/* INTO $upstream",
-          "sensorToncfaccessor": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/ncfaccessor/inputs/input1\")"
+          "nfcaccessorToIoTHub": "FROM /messages/modules/nfcaccessor/outputs/* INTO $upstream",
+          "sensorTonfcaccessor": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/nfcaccessor/inputs/input1\")"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200

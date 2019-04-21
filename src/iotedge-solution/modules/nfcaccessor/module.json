@@ -2,7 +2,7 @@
   "$schema-version": "0.0.1",
   "description": "",
   "image": {
-    "repository": "trooperacr.azurecr.io/ncfaccessor",
+    "repository": "trooperacr.azurecr.io/nfcaccessor",
     "tag": {
       "version": "0.0.1",
       "platforms": {
