@@ -2,10 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "0.1.0.0",
     "parameters": {
-        "prefix": {
+        "projectName": {
             "type": "string",
             "metadata": {
-                "description": "Prefix string for each resource name."
+                "description": "A project name that is also used as a prefix of resource names."
             }
         },
         "location": {
@@ -93,11 +93,11 @@
     "variables": {
         "location": "[if(equals(parameters('location'), ''), resourceGroup().location, parameters('location'))]",
         "iotHubName": "[if(equals(parameters('iotHubName'), ''), 'iothub', parameters('iotHubName'))]",
-        "acrName": "[concat(parameters('prefix'), 'acr')]",
+        "acrName": "[concat(parameters('projectName'), 'acr')]",
         "storageAccountsName": "[uniqueString(resourceGroup().id)]",
-        "signalRServiceName": "[concat(parameters('prefix'), '-signalr')]",
-        "appServicePlanName": "[concat(parameters('prefix'), '-plan')]",
-        "functionName": "[concat(parameters('prefix'), '-func')]"
+        "signalRServiceName": "[concat(parameters('projectName'), '-signalr')]",
+        "appServicePlanName": "[concat(parameters('projectName'), '-plan')]",
+        "functionName": "[concat(parameters('projectName'), '-func')]"
     },
     "resources": [
         {

@@ -68,7 +68,7 @@ az group deployment create \
   --resource-group ${RESOURCE_GROUP} \
   --template-file azuredeploy.json \
   --parameters @parameters.azuredeploy.json \
-  --parameters prefix=${PREFIX} \
+  --parameters projectName=${PROJECT_NAME} \
   --parameters functionsZipUrl=${FUNCTIONS_ZIP_URL}
 ```
 
