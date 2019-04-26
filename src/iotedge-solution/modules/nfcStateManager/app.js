@@ -34,7 +34,7 @@ const twinReportedCallback = (err) => {
 
 // Helper function to print results in the console
 const printResultFor = (op) => {
-  return printResult = (err, res) => {
+  const printResult = (err, res) => {
     if (err) {
       console.log(op + ' error: ' + err.toString());
     }
@@ -42,6 +42,7 @@ const printResultFor = (op) => {
       console.log(op + ' status: ' + res.constructor.name);
     }
   };
+  return printResult;
 }
 
 // Executor
