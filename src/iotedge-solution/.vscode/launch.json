@@ -23,6 +23,27 @@
           }
         ]
       }
+    },
+    {
+      "name": "nfcStateManager Remote Debug (Node.js)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "address": "localhost",
+      "localRoot": "${workspaceRoot}/modules/nfcStateManager",
+      "remoteRoot": "/app",
+      "protocol": "inspector"
+    },
+    {
+      "name": "nfcStateManager Local Debug (Node.js)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/modules/nfcStateManager/app.js",
+      "console": "integratedTerminal",
+      "env": {
+        "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+        "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+      }
     }
   ]
 }

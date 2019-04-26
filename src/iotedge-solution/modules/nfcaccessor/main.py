@@ -5,7 +5,6 @@
 # import random
 import time
 import sys
-import iothub_client
 import nfc
 import json
 # pylint: disable=E0611
@@ -17,10 +16,6 @@ from iothub_client import IoTHubMessage, IoTHubMessageDispositionResult, IoTHubE
 # By default, messages do not expire.
 MESSAGE_TIMEOUT = 10000
 
-# global counters
-# RECEIVE_CALLBACKS = 0
-# SEND_CALLBACKS = 0
-
 # Choose HTTP, AMQP or MQTT as transport protocol.  Currently only MQTT is supported.
 PROTOCOL = IoTHubTransportProvider.MQTT
 
@@ -31,25 +26,7 @@ def send_confirmation_callback(message, result, user_context):
     map_properties = message.properties()
     key_value_pair = map_properties.get_internals()
     print ( "    Properties: %s" % key_value_pair )
-    # SEND_CALLBACKS += 1
-    # print ( "    Total calls confirmed: %d" % SEND_CALLBACKS )
 
-
-# # receive_message_callback is invoked when an incoming message arrives on the specified 
-# # input queue (in the case of this sample, "input1").  Because this is a filter module, 
-# # we will forward this message onto the "output1" queue.
-# def receive_message_callback(message, hubManager):
-#     global RECEIVE_CALLBACKS
-#     message_buffer = message.get_bytearray()
-#     size = len(message_buffer)
-#     print ( "    Data: <<<%s>>> & Size=%d" % (message_buffer[:size].decode('utf-8'), size) )
-#     map_properties = message.properties()
-#     key_value_pair = map_properties.get_internals()
-#     print ( "    Properties: %s" % key_value_pair )
-#     RECEIVE_CALLBACKS += 1
-#     print ( "    Total calls received: %d" % RECEIVE_CALLBACKS )
-#     hubManager.forward_event_to_output("output1", message, 0)
-#     return IoTHubMessageDispositionResult.ACCEPTED
 
 def send_reported_state_callback(status_code, hubManager):
     print ( "" )
@@ -81,12 +58,12 @@ def run_nfc_once(hubManager):
             'on-startup': hubManager.on_rdwr_startup,
             'on-connect': hubManager.on_rdwr_connect}
 
-        tag = clf.connect(rdwr=rdwr_options)
+        result = clf.connect(rdwr=rdwr_options)
 
-        reported_state = {'nfc': {'is_connected': False}}
-        hubManager.send_reported_state(reported_state)
+        state = {'nfc': {'is_connected': False}}
+        hubManager.forward_event_to_output(state, 0)
 
-        return True
+        return result
     finally:
         clf.close()
 
@@ -102,10 +79,6 @@ class HubManager(object):
 
         # set the time until a message times out
         self.client.set_option("messageTimeout", MESSAGE_TIMEOUT)
-        
-        # # sets the callback when a message arrives on "input1" queue.  Messages sent to 
-        # # other inputs or to the default will be silently discarded.
-        # self.client.set_message_callback("input1", receive_message_callback, self)
 
         self.client.set_module_method_callback(module_method_callback, self)
         self.client.set_module_twin_callback(module_twin_callback, self)
@@ -115,17 +88,13 @@ class HubManager(object):
             print ( "** RESTERT **" )
 
     # Forwards the message received onto the next stage in the process.
-    def forward_event_to_output(self, outputQueueName, event, send_context):
-        self.client.send_event_async(
-            outputQueueName, event, send_confirmation_callback, send_context)
+    def forward_event_to_output(self, event, send_context):
+        if type(event) != 'str':
+            event = json.dumps(event)
+        message = IoTHubMessage(event)
 
-    # Callback received when the message that we're forwarding is processed.
-    def send_confirmation_callback(self, message, result, user_context):
-        global SEND_CALLBACKS
-        print ( "Confirmation[%d] received for message with result = %s" % (user_context, result) )
-        map_properties = message.properties()
-        key_value_pair = map_properties.get_internals()
-        print ( "    Properties: %s" % key_value_pair )
+        self.client.send_event_async(
+            'nfcaccessor', message, send_confirmation_callback, send_context)
 
     def send_reported_state(self, reported_state):
         reported_state = json.dumps(reported_state)
@@ -138,12 +107,12 @@ class HubManager(object):
 
     def on_rdwr_connect(self, tag):
         print ( tag )
-        reported_state = {'nfc': {
+        state = {'nfc': {
             'is_connected': True,
             'tag': {
                 'product': tag.product,
                 'id': tag.identifier.encode("hex").upper()}}}
-        self.send_reported_state(reported_state)
+        self.forward_event_to_output(state, 0)
         return tag
 
 

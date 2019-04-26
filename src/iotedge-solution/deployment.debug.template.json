@@ -53,12 +53,17 @@
                   }
                 }
               }
+            },
+            "env": {
+              "OptimizeForPerformance": {
+                "value": false
+              }
             }
           }
         },
         "modules": {
           "nfcaccessor": {
-            "version": "1.0",
+            "version": "1.0.0",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
@@ -81,7 +86,7 @@
             }
           },
           "nfcStateManager": {
-            "version": "1.0",
+            "version": "1.0.0",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
@@ -110,7 +115,7 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "nfcAccessorToStateManager": "FROM /messages/modules/nfcaccessor/outputs/* INTO BrokeredEndpoint(\"/modules/nfcStateManager/inputs/nfcaccessor\")",
+          "nfcAccessorToStateManager": "FROM /messages/modules/nfcaccessor/outputs/nfcaccessor INTO BrokeredEndpoint(\"/modules/nfcStateManager/inputs/nfcaccessor\")",
           "nfcStateManagerToIoTHub": "FROM /messages/modules/nfcStateManager/outputs/* INTO $upstream"
         },
         "storeAndForwardConfiguration": {
