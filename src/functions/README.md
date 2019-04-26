@@ -13,10 +13,10 @@ func new --language JavaScript --template "HTTP trigger" --name negotiate
 func new --language JavaScript --template "Azure Event Hub trigger" --name triggerFromIoTHub
 
 # Get a connection string of SignalR Service
-SIGNALR_CONNSTR=$(az signalr key list --resource-group ${RESOURCE_GROUP} --name ${PREFIX}-signalr --query "primaryConnectionString" --output tsv)
+SIGNALR_CONNSTR=$(az signalr key list --resource-group ${RESOURCE_GROUP} --name ${PROJECT_NAME}-signalr --query "primaryConnectionString" --output tsv)
 
 # How to get a connection string of IoT Hub default endpoint
-IOTHUB_DEFAULT_ENDPONT_CONNSTR=$(az iot hub show-connection-string --resource-group ${RESOURCE_GROUP} --name ${PREFIX}-iothub --query "connectionString" --output tsv)
+IOTHUB_DEFAULT_ENDPONT_CONNSTR=$(az iot hub show-connection-string --resource-group ${RESOURCE_GROUP} --name ${PROJECT_NAME}-iothub --query "connectionString" --output tsv)
 ```
 
 ## References
