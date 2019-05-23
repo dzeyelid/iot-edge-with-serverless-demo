@@ -93,6 +93,7 @@
     "variables": {
         "location": "[if(equals(parameters('location'), ''), resourceGroup().location, parameters('location'))]",
         "iotHubName": "[if(equals(parameters('iotHubName'), ''), 'iothub', parameters('iotHubName'))]",
+        "iotHubConsumerGroupName": "[concat(variables('iotHubName'), '/events/iothub-explorer')]",
         "acrName": "[concat(parameters('projectName'), 'acr')]",
         "storageAccountsName": "[uniqueString(resourceGroup().id)]",
         "signalRServiceName": "[concat(parameters('projectName'), '-signalr')]",
@@ -136,6 +137,14 @@
                 "name": "[parameters('iotHubSkuName')]",
                 "capacity": "[parameters('iotHubSkuCapacity')]"
             }
+        },
+        {
+            "name": "[variables('iotHubConsumerGroupName')]",
+            "type": "Microsoft.Devices/IotHubs/eventHubEndpoints/ConsumerGroups",
+            "apiVersion": "2018-04-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Devices/IoTHubs', variables('iotHubName'))]"
+            ]
         },
         {
             "name": "[variables('signalRServiceName')]",
