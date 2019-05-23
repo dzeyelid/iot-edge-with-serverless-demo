@@ -1,4 +1,4 @@
-# [WIP] IoT Edge with serverless application demonstration
+# IoT Edge with serverless application demonstration
 
 [![Build Status](https://dev.azure.com/nico-playground/iot-edge-with-serverless-demo/_apis/build/status/dzeyelid.iot-edge-with-serverless-demo?branchName=master)](https://dev.azure.com/nico-playground/iot-edge-with-serverless-demo/_build/latest?definitionId=3&branchName=master)
 
@@ -8,7 +8,7 @@ This project purpose is to make a demonstration that is a combination of Azure I
 
 ## Overview
 
-![Overall design figure](./docs/images/20190126_watch-iot-edge-online_design-overall.png)
+![Overall design figure](./docs/images/20190523_watch-iot-edge-online_design-overall.png)
 
 ### Technical components
 
